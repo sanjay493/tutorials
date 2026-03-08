@@ -36,4 +36,4 @@ jobs:
           script: |
             cd ~/tutorials
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/tutorials:latest
-            docker-compose up -d frontend
+            docker compose up -d frontend
