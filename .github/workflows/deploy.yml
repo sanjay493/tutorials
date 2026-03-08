@@ -28,7 +28,7 @@ jobs:
     needs: build-and-push
     steps:
       - name: Deploy to Oracle Cloud
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.OCI_HOST }}
           username: ${{ secrets.OCI_USERNAME }}
@@ -37,4 +37,4 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/tutorials:latest
             docker stop tutorials_app || true
             docker rm tutorials_app || true
-            docker run -d --name tutorials_app -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/tutorials:latest
+            docker run -d --name tutorials_app -p 3000:80 ${{ secrets.DOCKERHUB_USERNAME }}/tutorials:latest
