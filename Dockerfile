@@ -8,7 +8,7 @@ RUN npm run build
 
 # Production stage
 FROM nginx:stable-alpine
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/dist/ /usr/share/nginx/html
 # Copy custom nginx config if we had one, but default is often fine for simple SPAs
 # In a real scenario, you'd want a config that handles React Router (fallback to index.html)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
