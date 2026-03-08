@@ -234,7 +234,7 @@ jobs:
 └── README.md`
             },
             {
-                content: 'Craete a <Dockerfile in the root directory of your project.',
+                content: 'Create a <Dockerfile> in the root directory of your project.',
                 code: `# Build stage
 FROM node:18-alpine as build
 WORKDIR /app
@@ -305,14 +305,14 @@ CMD ["nginx", "-g", "daemon off;"]
                 code: 'sudo systemctl start docker'
             },
             {
-                content: 'Login to Docker Hub fromloacl machine with Access token, Copy it from https://hub.docker.com/settings/security',
+                content: 'Login to Docker Hub from local machine with Access token, Copy it from https://hub.docker.com/settings/security',
                 code: 'docker login'
             },
             {
                 content: 'Build docker image from project folder',
                 code: 'docker build -t <dockerhub_username>/<repository_name> .'
             }, {
-                content: 'verfity docker images',
+                content: 'verify docker images',
                 code: 'docker images'
             }, {
                 content: 'Push docker image to Docker Hub',
@@ -321,13 +321,65 @@ CMD ["nginx", "-g", "daemon off;"]
         ]
     },
     {
-        id: 'docker',
+        id: 'Github-Actions',
         chapter: 7,
-        title: 'Containerization with Docker',
+        title: 'Github Actions',
         sections: [
             {
-                content: 'Docker containers ensure "it works on my machine" works everywhere. A Dockerfile defines the environment, while Docker Compose manages multi-container setups.',
-                code: 'FROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nEXPOSE 3000\nCMD ["npm", "run", "dev"]'
+                content: 'Create a repository on Github',
+                image: '/tutorials/DevOps/assets/image/github-1.png'
+            }, {
+                content: 'connect your local project folder to github repository and push your code to github',
+                code: 'git init \n git add . \n git commit -m "Initial commit" \n git branch -M main \n git remote -v \n git remote remove origin \n git remote add origin <newly_created_repository_url> \n git push -u origin main'
+            },
+            {
+                content: 'create a <.github/workflows/deploy.yml> file in the root directory of your project on local machine.',
+                code: `name: Build and Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: \${{ secrets.DOCKERHUB_USERNAME }}
+          password: \${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: \${{ secrets.DOCKERHUB_USERNAME }}/tutorials:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - name: Deploy to Oracle Cloud
+        uses: appleboy/ssh-action@master
+        with:
+          host: \${{ secrets.OCI_HOST }}
+          username:\${{ secrets.OCI_USERNAME }}
+          key: \${{ secrets.SSH_KEY }}
+          script: |
+            docker pull \${{ secrets.DOCKERHUB_USERNAME }}/tutorials:latest
+            docker stop tutorials_app || true
+            docker rm tutorials_app || true
+            docker run -d --name tutorials_app -p 80:80 \${{ secrets.DOCKERHUB_USERNAME }}/tutorials:latest
+`
+            },
+            {
+                content: 'Add secrets to your GitHub repository.',
+                code: 'Settings -> Secrets -> New repository secret',
+                image: '/tutorials/DevOps/assets/image/github-2.png'
             }
         ]
     },
