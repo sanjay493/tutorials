@@ -1,0 +1,8 @@
+services:
+  app:
+    build: .
+    ports:
+      - "80:80"
+    restart: always
+    image: saurabhjha/tutorials_app:latest
+    container_name: tutorials_app
